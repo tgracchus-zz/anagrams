@@ -86,15 +86,31 @@ object Anagrams {
     * Note that the order of the occurrence list subsets does not matter -- the subsets
     * in the example above could have been displayed in some other order.
     */
-  def combinations(occurrences: Occurrences): List[Occurrences] =
-  if (occurrences.isEmpty)
-    List(List())
-  else {
-    for {
-      index <- 0 to occurrences.length
-      elements <- occurrences.combinations(index)
-    } yield elements
-  }.toList
+  def combinations(occurrences: Occurrences): List[Occurrences] = {
+    if (occurrences.isEmpty)
+      List(List())
+    else {
+      val expandedList = expand(occurrences)
+      List() :: {
+        for {
+          index <- 1 to occurrences.length
+          rest <- (expandedList combinations (index))
+        } yield rest
+      }.toList.filter(occurrence => occurrence.groupBy(_._1).forall(hashelem => hashelem._2.length == 1))
+    }
+  }
+
+  def expand(occurrences: Occurrences): Occurrences =
+    if (occurrences.isEmpty)
+      List()
+    else {
+      {
+        for {
+          occurrence <- occurrences
+          index <- 1 to occurrence._2
+        } yield (occurrence._1, index)
+      }
+    }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
     *
