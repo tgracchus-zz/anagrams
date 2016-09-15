@@ -37,7 +37,7 @@ object Anagrams {
   def wordOccurrences(w: Word): Occurrences =
   (w.toLowerCase() groupBy ((char: Char) => char))
     .toList
-    .map { case (letter, nletters) => (letter, nletters.length) }.sortBy { case (letter, nletters) => (nletters, letter) }
+    .map { case (letter, nletters) => (letter, nletters.length) }.sortBy { case (letter, nletters) => (letter, nletters) }
 
 
   /** Converts a sentence into its character occurrence list. */
