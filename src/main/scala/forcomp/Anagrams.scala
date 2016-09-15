@@ -35,9 +35,9 @@ object Anagrams {
     * Note: you must use `groupBy` to implement this method!
     */
   def wordOccurrences(w: Word): Occurrences =
-  (w.toUpperCase groupBy ((char: Char) => char))
+  (w.toLowerCase() groupBy ((char: Char) => char))
     .toList
-    .map { case (letter, nletters) => (letter, nletters.length) }
+    .map { case (letter, nletters) => (letter, nletters.length) }.sortBy { case (letter, nletters) => (nletters, letter) }
 
 
   /** Converts a sentence into its character occurrence list. */
@@ -58,8 +58,7 @@ object Anagrams {
     * List(('a', 1), ('e', 1), ('t', 1)) -> Seq("ate", "eat", "tea")
     *
     */
-  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = dictionary.groupBy(word=>wordOccurrences(word))
-
+  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = dictionary.groupBy(word => wordOccurrences(word))
 
 
   /** Returns all the anagrams of a given word. */
@@ -87,7 +86,15 @@ object Anagrams {
     * Note that the order of the occurrence list subsets does not matter -- the subsets
     * in the example above could have been displayed in some other order.
     */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  def combinations(occurrences: Occurrences): List[Occurrences] =
+  if (occurrences.isEmpty)
+    List(List())
+  else {
+    for {
+      index <- 0 to occurrences.length
+      elements <- occurrences.combinations(index)
+    } yield elements
+  }.toList
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
     *
@@ -99,7 +106,10 @@ object Anagrams {
     * Note: the resulting value is an occurrence - meaning it is sorted
     * and has no zero-entries.
     */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    val xmap = x.toMap
+    y.map(a => (a._1, xmap(a._1) - a._2)).filter(_._2 > 0) union (x diff y)
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
     *
