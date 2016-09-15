@@ -70,8 +70,6 @@ object test {
     }
   }
 
-  val res = List(List(), List(("a",1)), List(("a",2)), List(("b",1)), List(("b",2)), List(("a",1), ("a",2)), List(("a",1), ("b",1)), List(("a",1), ("b",2)), List(("a",2), ("b",1)), List(("a",2), ("b",2)), List(("b",1), ("b",2)))
-  List(("a",1), ("a",2)).groupBy(_._1).forall(hashelem => hashelem._2.length == 1)
   combinations(wordOccurrences("abba"));
 
 

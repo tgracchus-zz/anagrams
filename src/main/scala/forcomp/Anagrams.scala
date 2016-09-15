@@ -41,7 +41,7 @@ object Anagrams {
 
 
   /** Converts a sentence into its character occurrence list. */
-  def sentenceOccurrences(s: Sentence): Occurrences = wordOccurrences(s.reduceLeft((fullword, word) => fullword.concat(word)))
+  def sentenceOccurrences(s: Sentence): Occurrences = wordOccurrences(s.flatten.mkString)
 
   /** The `dictionaryByOccurrences` is a `Map` from different occurrences to a sequence of all
     * the words that have that occurrence count.
@@ -96,7 +96,7 @@ object Anagrams {
           index <- 1 to occurrences.length
           rest <- (expandedList combinations (index))
         } yield rest
-      }.toList.filter(occurrence => occurrence.groupBy(_._1).forall(hashelem => hashelem._2.length == 1))
+      }.toList.filter(occurrence => occurrence.groupBy(_._1).forall(elem => elem._2.length == 1))
     }
   }
 
@@ -123,9 +123,17 @@ object Anagrams {
     * and has no zero-entries.
     */
   def subtract(x: Occurrences, y: Occurrences): Occurrences = {
-    val xmap = x.toMap
-    y.map(a => (a._1, xmap(a._1) - a._2)).filter(_._2 > 0) union (x diff y)
+    val (x1, x2) = x.partition(a => y.exists(b => a._1 == b._1))
+
+    val difference =
+      for (
+        (a, b) <- x1.zip(y)
+        if a._2 != b._2)
+        yield (a._1, a._2 - b._2)
+
+    (x2 ++ difference).sorted
   }
+
 
   /** Returns a list of all anagram sentences of the given sentence.
     *
@@ -167,5 +175,22 @@ object Anagrams {
     *
     * Note: There is only one anagram of an empty sentence.
     */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    sentenceAnagramsIter(sentenceOccurrences(sentence))
+  }
+
+  def sentenceAnagramsIter(occurrence: Occurrences): List[Sentence] = {
+    if (occurrence.isEmpty) {
+      List(Nil)
+    } else {
+      val combs = combinations(occurrence)
+      for (comb <- combs if dictionaryByOccurrences.keySet(comb);
+           listOfWords <- dictionaryByOccurrences(comb);
+           rest <- sentenceAnagramsIter(subtract(occurrence, comb)))
+        yield {
+          listOfWords :: rest
+        }
+    }
+  }
+
 }
