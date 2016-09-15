@@ -184,7 +184,8 @@ object Anagrams {
       List(Nil)
     } else {
       val combs = combinations(occurrence)
-      for (comb <- combs if dictionaryByOccurrences.keySet(comb);
+      for (comb <- combs
+           if dictionaryByOccurrences.keySet(comb);
            listOfWords <- dictionaryByOccurrences(comb);
            rest <- sentenceAnagramsIter(subtract(occurrence, comb)))
         yield {
